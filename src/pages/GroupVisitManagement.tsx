@@ -246,7 +246,7 @@ function QrScanModal({ onClose }: { onClose: () => void }) {
     if (group?.status === "fully_out") { setScanError("ALREADY_OUT"); setScanStatus("error"); return; }
     if (group?.status === "pending_approval") { setScanError("NOT_APPROVED"); setScanStatus("error"); return; }
     onClose();
-    navigate(`/group-visits/${groupId}`);
+    navigate(`/group-visits/${groupId}/checkin`);
   };
 
   const handleManualSubmit = (e: React.FormEvent) => {
