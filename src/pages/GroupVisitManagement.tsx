@@ -7,6 +7,14 @@ import { Link, useNavigate } from "react-router-dom";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+interface Member {
+  id: string;
+  name: string;
+  idNumber: string;
+  passNumber: string;
+  status: "checked_in" | "pending" | "rejected";
+}
+
 interface GroupRow {
   id: string;
   groupName: string;
@@ -20,6 +28,7 @@ interface GroupRow {
   checkoutProgress: { done: number; total: number };
   passesProgress: { done: number; total: number };
   status: "pending_approval" | "approved" | "checked_in" | "partial_out" | "fully_out" | "late_checkout";
+  members: Member[];
 }
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
