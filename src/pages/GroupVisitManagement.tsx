@@ -388,13 +388,6 @@ const STAT_CARDS: StatCardConfig[] = [
     iconBg: "bg-destructive",
     icon: <XCircle className="h-5 w-5 text-white" />,
   },
-  {
-    label: "Bus Transport",
-    key: "bus",
-    color: "text-primary",
-    iconBg: "bg-primary",
-    icon: <Bus className="h-5 w-5 text-white" />,
-  },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
