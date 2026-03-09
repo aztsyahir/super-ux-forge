@@ -716,19 +716,48 @@ export default function GroupVisitManagement() {
                       </td>
                     </tr>
 
-                    {/* Expanded row */}
+                    {/* Expanded row — member list */}
                     {expanded.has(g.id) && (
-                      <tr key={`${g.id}-exp`} className="bg-muted/10 border-b border-border">
-                        <td colSpan={10} className="px-10 py-3">
-                          <div className="flex items-center gap-6 text-xs text-muted-foreground">
-                            <span><span className="font-semibold text-foreground">Visit Date:</span> {new Date().toLocaleDateString("en-MY")}</span>
-                            <span><span className="font-semibold text-foreground">Transport:</span> {g.transport} {g.transportPlates?.join(", ")}</span>
-                            <span><span className="font-semibold text-foreground">Group Size:</span> {g.groupSize} visitors</span>
-                            <span><span className="font-semibold text-foreground">Checkout:</span> {g.checkoutProgress.done}/{g.checkoutProgress.total} out</span>
-                            <Link to={`/group-visits/${g.id}`} className="ml-auto text-primary hover:underline font-medium">
+                      <tr key={`${g.id}-exp`} className="border-b border-border">
+                        <td colSpan={10} className="bg-muted/20 px-8 py-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              Members · {g.members.length} shown
+                            </p>
+                            <Link to={`/group-visits/${g.id}`} className="text-xs text-primary hover:underline font-medium">
                               View full details →
                             </Link>
                           </div>
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="border-b border-border">
+                                <th className="pb-2 text-left font-semibold uppercase tracking-wide text-muted-foreground pr-6">Name</th>
+                                <th className="pb-2 text-left font-semibold uppercase tracking-wide text-muted-foreground pr-6">ID Number</th>
+                                <th className="pb-2 text-left font-semibold uppercase tracking-wide text-muted-foreground pr-6">Pass No.</th>
+                                <th className="pb-2 text-left font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {g.members.map((m) => (
+                                <tr key={m.id} className="border-b border-border/50 last:border-0">
+                                  <td className="py-2 pr-6 font-medium text-foreground">{m.name}</td>
+                                  <td className="py-2 pr-6 font-mono text-muted-foreground">{m.idNumber}</td>
+                                  <td className="py-2 pr-6 font-mono text-muted-foreground">{m.passNumber}</td>
+                                  <td className="py-2">
+                                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                      m.status === "checked_in"
+                                        ? "bg-[hsl(var(--badge-checked-in-bg))] text-[hsl(var(--badge-checked-in-text))]"
+                                        : m.status === "rejected"
+                                        ? "bg-destructive/10 text-destructive"
+                                        : "bg-muted text-muted-foreground"
+                                    }`}>
+                                      {m.status === "checked_in" ? "Checked In" : m.status === "rejected" ? "Rejected" : "Pending"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </td>
                       </tr>
                     )}
