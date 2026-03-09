@@ -407,7 +407,6 @@ export default function GroupVisitManagement() {
     no_show: 0,
     cancelled: 0,
     late_checkout: MOCK_GROUPS.filter((g) => g.status === "late_checkout").length,
-    bus: MOCK_GROUPS.filter((g) => g.transport === "bus").length,
   };
 
   const filtered = MOCK_GROUPS.filter((g) => {
