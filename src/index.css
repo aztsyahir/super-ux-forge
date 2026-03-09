@@ -63,6 +63,9 @@
     --badge-partial-bg: 271 81% 95%;
     --badge-partial-text: 271 81% 40%;
 
+    /* NavBar brand teal (mi-vam logo) */
+    --nav-brand: 186 100% 35%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
