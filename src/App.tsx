@@ -10,6 +10,7 @@ import VisitorPreRegistration from "./pages/VisitorPreRegistration";
 import GroupVisitManagement from "./pages/GroupVisitManagement";
 import GroupInformationPage from "./pages/GroupInformationPage";
 import AssignPassesPage from "./pages/AssignPassesPage";
+import GroupCheckinPage from "./pages/GroupCheckinPage";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/group-visits" element={<GroupVisitManagement />} />
           <Route path="/group-visits/:id" element={<GroupInformationPage />} />
           <Route path="/group-visits/:id/assign-passes" element={<AssignPassesPage />} />
+          <Route path="/group-visits/:id/checkin" element={<GroupCheckinPage />} />
           <Route path="/dashboard" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

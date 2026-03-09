@@ -246,7 +246,7 @@ function QrScanModal({ onClose }: { onClose: () => void }) {
     if (group?.status === "fully_out") { setScanError("ALREADY_OUT"); setScanStatus("error"); return; }
     if (group?.status === "pending_approval") { setScanError("NOT_APPROVED"); setScanStatus("error"); return; }
     onClose();
-    navigate(`/group-visits/${groupId}`);
+    navigate(`/group-visits/${groupId}/checkin`);
   };
 
   const handleManualSubmit = (e: React.FormEvent) => {
@@ -388,13 +388,6 @@ const STAT_CARDS: StatCardConfig[] = [
     iconBg: "bg-destructive",
     icon: <XCircle className="h-5 w-5 text-white" />,
   },
-  {
-    label: "Bus Transport",
-    key: "bus",
-    color: "text-primary",
-    iconBg: "bg-primary",
-    icon: <Bus className="h-5 w-5 text-white" />,
-  },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -414,7 +407,6 @@ export default function GroupVisitManagement() {
     no_show: 0,
     cancelled: 0,
     late_checkout: MOCK_GROUPS.filter((g) => g.status === "late_checkout").length,
-    bus: MOCK_GROUPS.filter((g) => g.transport === "bus").length,
   };
 
   const filtered = MOCK_GROUPS.filter((g) => {
@@ -464,7 +456,7 @@ export default function GroupVisitManagement() {
         {/* ── Stat Cards ─────────────────────────────────────────────────── */}
         <div className="mb-6 grid grid-cols-4 gap-3">
           {/* 6 regular cards in a 3×2 sub-grid occupying 3 columns */}
-          <div className="col-span-3 grid grid-cols-4 gap-3">
+          <div className="col-span-3 grid grid-cols-3 gap-3">
             {STAT_CARDS.map((card) => {
               const count = statCounts[card.key] ?? 0;
               const isActive = statusFilter === card.key;
