@@ -242,6 +242,9 @@ export default function GroupInformationPage() {
           passesCollected={group.preAssignedPasses - 2}
           missingPassIds={["4291", "4295"]}
           members={group.members}
+          visitDate="2026-02-26"
+          visitStatus={group.status}
+          checkedOutAt={null}
           onClose={() => setShowCheckout(false)}
           onConfirm={() => {
             setShowCheckout(false);
