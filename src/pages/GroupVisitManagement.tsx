@@ -464,7 +464,7 @@ export default function GroupVisitManagement() {
         {/* ── Stat Cards ─────────────────────────────────────────────────── */}
         <div className="mb-6 grid grid-cols-4 gap-3">
           {/* 6 regular cards in a 3×2 sub-grid occupying 3 columns */}
-          <div className="col-span-3 grid grid-cols-3 gap-3">
+          <div className="col-span-3 grid grid-cols-4 gap-3">
             {STAT_CARDS.map((card) => {
               const count = statCounts[card.key] ?? 0;
               const isActive = statusFilter === card.key;
