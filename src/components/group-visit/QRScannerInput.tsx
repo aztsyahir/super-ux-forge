@@ -9,7 +9,7 @@ interface QRScannerInputProps {
 
 type Mode = "camera" | "manual";
 
-export function QRScannerInput({ onScan, disabled }: QRScannerInputProps) {
+export function QRScannerInput({ onScan }: QRScannerInputProps) {
   const [mode, setMode] = useState<Mode>("camera");
   const [manualValue, setManualValue] = useState("");
   const [buffer, setBuffer] = useState("");
@@ -18,8 +18,6 @@ export function QRScannerInput({ onScan, disabled }: QRScannerInputProps) {
 
   // USB / keyboard wedge scanner listener — captures rapid keystrokes ending with Enter
   useEffect(() => {
-    if (disabled) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if focus is inside the manual input
       if (document.activeElement === inputRef.current) return;
@@ -35,7 +33,6 @@ export function QRScannerInput({ onScan, disabled }: QRScannerInputProps) {
 
       if (e.key.length === 1) {
         setBuffer((prev) => prev + e.key);
-
         if (bufferTimer.current) clearTimeout(bufferTimer.current);
         bufferTimer.current = setTimeout(() => setBuffer(""), 300);
       }
@@ -46,7 +43,7 @@ export function QRScannerInput({ onScan, disabled }: QRScannerInputProps) {
       window.removeEventListener("keydown", handleKeyDown);
       if (bufferTimer.current) clearTimeout(bufferTimer.current);
     };
-  }, [buffer, disabled, onScan]);
+  }, [buffer, onScan]);
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +60,6 @@ export function QRScannerInput({ onScan, disabled }: QRScannerInputProps) {
       <div className="flex items-center gap-1 rounded-lg bg-muted p-1 self-end">
         <button
           onClick={() => setMode("camera")}
-          disabled={disabled}
           className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
             mode === "camera"
               ? "bg-card text-foreground shadow-sm"
@@ -75,7 +71,6 @@ export function QRScannerInput({ onScan, disabled }: QRScannerInputProps) {
         </button>
         <button
           onClick={() => setMode("manual")}
-          disabled={disabled}
           className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
             mode === "manual"
               ? "bg-card text-foreground shadow-sm"
@@ -89,7 +84,7 @@ export function QRScannerInput({ onScan, disabled }: QRScannerInputProps) {
 
       {mode === "camera" ? (
         <div className="relative w-full max-w-xs aspect-square rounded-xl overflow-hidden border-2 border-dashed border-primary/40 bg-muted/50 flex flex-col items-center justify-center gap-3">
-          {/* Animated scan line */}
+          {/* Animated scan frame */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative w-48 h-48">
               {/* Corner brackets */}
@@ -97,8 +92,7 @@ export function QRScannerInput({ onScan, disabled }: QRScannerInputProps) {
               <span className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary rounded-tr-sm" />
               <span className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-primary rounded-bl-sm" />
               <span className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-primary rounded-br-sm" />
-
-              {/* Scanning line animation */}
+              {/* Scanning beam */}
               <div
                 className="absolute left-2 right-2 h-0.5 bg-primary/70 rounded-full shadow-[0_0_8px_hsl(var(--primary)/0.7)]"
                 style={{ animation: "scan-line 2s ease-in-out infinite" }}
@@ -126,12 +120,11 @@ export function QRScannerInput({ onScan, disabled }: QRScannerInputProps) {
                 value={manualValue}
                 onChange={(e) => setManualValue(e.target.value)}
                 placeholder="e.g. VIS-20240310-001"
-                disabled={disabled}
                 className="flex-1 font-mono text-sm"
               />
               <Button
                 type="submit"
-                disabled={disabled || manualValue.trim().length < 4}
+                disabled={manualValue.trim().length < 4}
                 size="sm"
               >
                 Check In
