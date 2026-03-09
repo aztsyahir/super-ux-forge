@@ -10,6 +10,7 @@ import VisitorPreRegistration from "./pages/VisitorPreRegistration";
 import GroupVisitManagement from "./pages/GroupVisitManagement";
 import GroupInformationPage from "./pages/GroupInformationPage";
 import AssignPassesPage from "./pages/AssignPassesPage";
+import GroupCheckinPage from "./pages/GroupCheckinPage";
 
 const queryClient = new QueryClient();
 
