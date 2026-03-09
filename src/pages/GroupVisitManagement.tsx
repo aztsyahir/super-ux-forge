@@ -47,6 +47,12 @@ const MOCK_GROUPS: GroupRow[] = [
     checkoutProgress: { done: 45, total: 45 },
     passesProgress: { done: 45, total: 45 },
     status: "fully_out",
+    members: [
+      { id: "m1", name: "Ahmad Zaki", idNumber: "900101-01-1234", passNumber: "4201", status: "checked_in" },
+      { id: "m2", name: "Nur Ain", idNumber: "920315-02-5678", passNumber: "4202", status: "checked_in" },
+      { id: "m3", name: "Razif Hassan", idNumber: "950620-05-9012", passNumber: "4203", status: "checked_in" },
+      { id: "m4", name: "Siti Mariam", idNumber: "880901-07-3456", passNumber: "4204", status: "checked_in" },
+    ],
   },
   {
     id: "grp-2",
@@ -61,6 +67,12 @@ const MOCK_GROUPS: GroupRow[] = [
     checkoutProgress: { done: 6, total: 12 },
     passesProgress: { done: 12, total: 12 },
     status: "partial_out",
+    members: [
+      { id: "m1", name: "Steven Wong", idNumber: "850210-14-2233", passNumber: "4210", status: "checked_in" },
+      { id: "m2", name: "Lee Jia Hui", idNumber: "910405-14-4455", passNumber: "4211", status: "checked_in" },
+      { id: "m3", name: "Rajan Kumar", idNumber: "930812-10-6677", passNumber: "4212", status: "pending" },
+      { id: "m4", name: "Farah Nadia", idNumber: "960101-06-8899", passNumber: "4213", status: "pending" },
+    ],
   },
   {
     id: "grp-3",
@@ -73,6 +85,11 @@ const MOCK_GROUPS: GroupRow[] = [
     checkoutProgress: { done: 0, total: 5 },
     passesProgress: { done: 0, total: 5 },
     status: "pending_approval",
+    members: [
+      { id: "m1", name: "Pn. Faridah", idNumber: "780303-03-1122", passNumber: "—", status: "pending" },
+      { id: "m2", name: "Mohd Fikri", idNumber: "810715-08-3344", passNumber: "—", status: "pending" },
+      { id: "m3", name: "Zuraidah Ali", idNumber: "830920-11-5566", passNumber: "—", status: "pending" },
+    ],
   },
   {
     id: "grp-4",
@@ -86,6 +103,13 @@ const MOCK_GROUPS: GroupRow[] = [
     checkoutProgress: { done: 0, total: 30 },
     passesProgress: { done: 28, total: 30 },
     status: "approved",
+    members: [
+      { id: "m1", name: "Cikgu Murni", idNumber: "760612-06-7788", passNumber: "4230", status: "pending" },
+      { id: "m2", name: "Adam Hariz", idNumber: "080101-06-1234", passNumber: "4231", status: "pending" },
+      { id: "m3", name: "Aisyah Binti Razak", idNumber: "080215-14-5678", passNumber: "4232", status: "pending" },
+      { id: "m4", name: "Bryan Lim", idNumber: "070320-14-9012", passNumber: "—", status: "pending" },
+      { id: "m5", name: "Darshini A/P Raj", idNumber: "080505-10-3456", passNumber: "—", status: "rejected" },
+    ],
   },
   {
     id: "grp-5",
@@ -99,6 +123,12 @@ const MOCK_GROUPS: GroupRow[] = [
     checkoutProgress: { done: 0, total: 8 },
     passesProgress: { done: 8, total: 8 },
     status: "checked_in",
+    members: [
+      { id: "m1", name: "Dato' Rashid", idNumber: "650101-01-0001", passNumber: "4240", status: "checked_in" },
+      { id: "m2", name: "Datin Rosmah", idNumber: "670215-02-0002", passNumber: "4241", status: "checked_in" },
+      { id: "m3", name: "Ir. Hafiz", idNumber: "720410-05-0003", passNumber: "4242", status: "checked_in" },
+      { id: "m4", name: "Dr. Azwan", idNumber: "750620-07-0004", passNumber: "4243", status: "checked_in" },
+    ],
   },
   {
     id: "grp-6",
@@ -113,6 +143,11 @@ const MOCK_GROUPS: GroupRow[] = [
     checkoutProgress: { done: 15, total: 15 },
     passesProgress: { done: 15, total: 15 },
     status: "fully_out",
+    members: [
+      { id: "m1", name: "Prof. Azizah", idNumber: "700101-01-1111", passNumber: "4250", status: "checked_in" },
+      { id: "m2", name: "Dr. Hafizuddin", idNumber: "820315-05-2222", passNumber: "4251", status: "checked_in" },
+      { id: "m3", name: "Amirul Haziq", idNumber: "950620-09-3333", passNumber: "4252", status: "checked_in" },
+    ],
   },
   {
     id: "grp-7",
@@ -125,6 +160,12 @@ const MOCK_GROUPS: GroupRow[] = [
     checkoutProgress: { done: 0, total: 4 },
     passesProgress: { done: 0, total: 4 },
     status: "pending_approval",
+    members: [
+      { id: "m1", name: "Encik Farhan", idNumber: "840501-03-4444", passNumber: "—", status: "pending" },
+      { id: "m2", name: "Nurul Hidayah", idNumber: "900715-06-5555", passNumber: "—", status: "pending" },
+      { id: "m3", name: "Chong Wei Kiat", idNumber: "870920-14-6666", passNumber: "—", status: "pending" },
+      { id: "m4", name: "Sanjay Pillai", idNumber: "910101-10-7777", passNumber: "—", status: "rejected" },
+    ],
   },
   {
     id: "grp-8",
@@ -138,6 +179,13 @@ const MOCK_GROUPS: GroupRow[] = [
     checkoutProgress: { done: 0, total: 20 },
     passesProgress: { done: 18, total: 20 },
     status: "approved",
+    members: [
+      { id: "m1", name: "Ms. Rachel Tan", idNumber: "880101-14-8888", passNumber: "4260", status: "pending" },
+      { id: "m2", name: "Kevin Yap", idNumber: "900215-14-9999", passNumber: "4261", status: "pending" },
+      { id: "m3", name: "Priya Nair", idNumber: "920410-10-0011", passNumber: "4262", status: "pending" },
+      { id: "m4", name: "Faizal Rahman", idNumber: "850620-07-0022", passNumber: "—", status: "pending" },
+      { id: "m5", name: "Lim Boon Seng", idNumber: "810901-14-0033", passNumber: "—", status: "rejected" },
+    ],
   },
   {
     id: "grp-9",
@@ -151,6 +199,12 @@ const MOCK_GROUPS: GroupRow[] = [
     checkoutProgress: { done: 0, total: 10 },
     passesProgress: { done: 10, total: 10 },
     status: "late_checkout",
+    members: [
+      { id: "m1", name: "Tn. Hj. Azman", idNumber: "680101-01-1010", passNumber: "4270", status: "checked_in" },
+      { id: "m2", name: "Hajah Rokiah", idNumber: "700215-02-2020", passNumber: "4271", status: "checked_in" },
+      { id: "m3", name: "Mohd Nazri", idNumber: "750410-05-3030", passNumber: "4272", status: "checked_in" },
+      { id: "m4", name: "Sharifah Aina", idNumber: "800620-06-4040", passNumber: "4273", status: "checked_in" },
+    ],
   },
 ];
 
