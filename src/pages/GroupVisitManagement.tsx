@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Download, Columns, QrCode, ChevronDown, ChevronUp, Bus, Users, X, ScanLine, Keyboard, Camera, AlertCircle } from "lucide-react";
+import { Search, Download, Columns, QrCode, ChevronDown, ChevronUp, Bus, Users, X, ScanLine, Keyboard, Camera, AlertCircle, LogIn, Clock, Ban, ArrowRightFromLine, CalendarX, XCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NavBar } from "@/components/NavBar";
@@ -19,7 +19,7 @@ interface GroupRow {
   checkInTime?: string;
   checkoutProgress: { done: number; total: number };
   passesProgress: { done: number; total: number };
-  status: "pending_approval" | "approved" | "checked_in" | "partial_out" | "fully_out";
+  status: "pending_approval" | "approved" | "checked_in" | "partial_out" | "fully_out" | "late_checkout";
 }
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
@@ -130,6 +130,19 @@ const MOCK_GROUPS: GroupRow[] = [
     passesProgress: { done: 18, total: 20 },
     status: "approved",
   },
+  {
+    id: "grp-9",
+    groupName: "Ministry Delegation",
+    picName: "Tn. Hj. Azman",
+    groupSize: 10,
+    host: "Director General",
+    hostDept: "Admin",
+    transport: "private",
+    checkInTime: "08:00 AM",
+    checkoutProgress: { done: 0, total: 10 },
+    passesProgress: { done: 10, total: 10 },
+    status: "late_checkout",
+  },
 ];
 
 // QR token → group ID map (simulates Supabase lookup)
@@ -141,7 +154,7 @@ const QR_TOKEN_MAP: Record<string, string> = {
   "GRP-5-QR": "grp-5",
 };
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
+// ─── Status styles & labels ───────────────────────────────────────────────────
 
 const STATUS_STYLES: Record<string, string> = {
   pending_approval: "bg-[hsl(var(--badge-pending-bg))] text-[hsl(var(--badge-pending-text))]",
@@ -149,6 +162,7 @@ const STATUS_STYLES: Record<string, string> = {
   checked_in: "bg-[hsl(var(--badge-checked-in-bg))] text-[hsl(var(--badge-checked-in-text))]",
   partial_out: "bg-[hsl(var(--badge-partial-bg))] text-[hsl(var(--badge-partial-text))]",
   fully_out: "bg-muted text-muted-foreground",
+  late_checkout: "bg-destructive/10 text-destructive",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -157,15 +171,17 @@ const STATUS_LABELS: Record<string, string> = {
   checked_in: "Checked In",
   partial_out: "Partial Out",
   fully_out: "Fully Out",
+  late_checkout: "Late Checkout",
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function ProgressBar({ done, total, variant }: { done: number; total: number; variant: "checkout" | "pass" }) {
   const pct = total > 0 ? (done / total) * 100 : 0;
-  const barColor = variant === "pass"
-    ? pct === 100 ? "bg-primary" : pct > 0 ? "bg-primary/60" : "bg-muted-foreground/30"
-    : pct === 100 ? "bg-[hsl(var(--success))]" : pct > 0 ? "bg-[hsl(var(--partial))]" : "bg-muted-foreground/30";
+  const barColor =
+    variant === "pass"
+      ? pct === 100 ? "bg-primary" : pct > 0 ? "bg-primary/60" : "bg-muted-foreground/30"
+      : pct === 100 ? "bg-[hsl(var(--success))]" : pct > 0 ? "bg-[hsl(var(--partial))]" : "bg-muted-foreground/30";
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 w-20 rounded-full bg-muted overflow-hidden">
@@ -200,7 +216,6 @@ function QrScanModal({ onClose }: { onClose: () => void }) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // USB / keyboard-wedge support
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (document.activeElement === inputRef.current) return;
@@ -224,27 +239,12 @@ function QrScanModal({ onClose }: { onClose: () => void }) {
   const processToken = async (token: string) => {
     setScanStatus("loading");
     setScanError(null);
-    // Simulate network
     await new Promise((r) => setTimeout(r, 900));
-
     const groupId = QR_TOKEN_MAP[token.toUpperCase()];
-    if (!groupId) {
-      setScanError("NOT_FOUND");
-      setScanStatus("error");
-      return;
-    }
+    if (!groupId) { setScanError("NOT_FOUND"); setScanStatus("error"); return; }
     const group = MOCK_GROUPS.find((g) => g.id === groupId);
-    if (group?.status === "fully_out") {
-      setScanError("ALREADY_OUT");
-      setScanStatus("error");
-      return;
-    }
-    if (group?.status === "pending_approval") {
-      setScanError("NOT_APPROVED");
-      setScanStatus("error");
-      return;
-    }
-    // Success — navigate to group detail
+    if (group?.status === "fully_out") { setScanError("ALREADY_OUT"); setScanStatus("error"); return; }
+    if (group?.status === "pending_approval") { setScanError("NOT_APPROVED"); setScanStatus("error"); return; }
     onClose();
     navigate(`/group-visits/${groupId}`);
   };
@@ -259,7 +259,6 @@ function QrScanModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-150">
       <div className="w-full max-w-sm rounded-2xl bg-card shadow-2xl overflow-hidden">
-        {/* Header */}
         <div className="flex items-start justify-between p-5 pb-3 border-b border-border">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
@@ -274,26 +273,15 @@ function QrScanModal({ onClose }: { onClose: () => void }) {
             <X className="h-4 w-4" />
           </button>
         </div>
-
-        {/* Body */}
         <div className="p-5 flex flex-col gap-4">
-          {/* Mode toggle */}
           <div className="flex items-center gap-1 rounded-lg bg-muted p-1 self-start">
-            <button
-              onClick={() => setMode("camera")}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${mode === "camera" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
+            <button onClick={() => setMode("camera")} className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${mode === "camera" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               <Camera className="h-3.5 w-3.5" /> Camera
             </button>
-            <button
-              onClick={() => setMode("manual")}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${mode === "manual" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
+            <button onClick={() => setMode("manual")} className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${mode === "manual" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               <Keyboard className="h-3.5 w-3.5" /> Manual
             </button>
           </div>
-
-          {/* Scanner area */}
           {mode === "camera" ? (
             <div className="relative w-full aspect-square max-h-56 rounded-xl overflow-hidden border-2 border-dashed border-primary/40 bg-muted/50 flex flex-col items-center justify-center gap-3">
               {isLoading ? (
@@ -324,31 +312,18 @@ function QrScanModal({ onClose }: { onClose: () => void }) {
             <form onSubmit={handleManualSubmit} className="flex flex-col gap-2">
               <label className="text-xs font-medium text-muted-foreground">QR Token / Visitor ID</label>
               <div className="flex gap-2">
-                <Input
-                  ref={inputRef}
-                  value={manualToken}
-                  onChange={(e) => setManualToken(e.target.value)}
-                  placeholder="e.g. GRP-5-QR"
-                  className="flex-1 font-mono text-sm"
-                  disabled={isLoading}
-                />
-                <Button type="submit" size="sm" disabled={isLoading || manualToken.trim().length < 4}>
-                  {isLoading ? "…" : "Go"}
-                </Button>
+                <Input ref={inputRef} value={manualToken} onChange={(e) => setManualToken(e.target.value)} placeholder="e.g. GRP-5-QR" className="flex-1 font-mono text-sm" disabled={isLoading} />
+                <Button type="submit" size="sm" disabled={isLoading || manualToken.trim().length < 4}>{isLoading ? "…" : "Go"}</Button>
               </div>
               <p className="text-[10px] text-muted-foreground">USB barcode scanner also works here</p>
             </form>
           )}
-
-          {/* Error */}
           {scanStatus === "error" && scanError && (
             <div className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5">
               <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
               <p className="text-xs text-destructive">{SCAN_ERRORS[scanError]}</p>
             </div>
           )}
-
-          {/* Hint */}
           {scanStatus === "idle" && (
             <p className="text-center text-[10px] text-muted-foreground/70">
               Try tokens: <span className="font-mono">GRP-2-QR</span>, <span className="font-mono">GRP-5-QR</span>
@@ -360,44 +335,58 @@ function QrScanModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── Stat cards config ────────────────────────────────────────────────────────
+// ─── Stat Cards config ────────────────────────────────────────────────────────
 
-const STAT_CARDS = [
+interface StatCardConfig {
+  label: string;
+  key: string;
+  color: string;
+  iconBg: string;
+  icon: React.ReactNode;
+}
+
+const STAT_CARDS: StatCardConfig[] = [
   {
-    label: "Pending Approval", key: "pending_approval",
-    color: "text-[hsl(var(--badge-pending-text))]",
-    iconBg: "bg-[hsl(var(--badge-pending-bg))]",
-    icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
-  },
-  {
-    label: "Approved", key: "approved",
-    color: "text-primary",
-    iconBg: "bg-[hsl(var(--info-bg))]",
-    icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-  },
-  {
-    label: "Checked In", key: "checked_in",
+    label: "Checked In",
+    key: "checked_in",
     color: "text-[hsl(var(--success))]",
-    iconBg: "bg-[hsl(var(--success-bg))]",
-    icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14" /></svg>,
+    iconBg: "bg-[hsl(var(--success))]",
+    icon: <LogIn className="h-5 w-5 text-white" />,
   },
   {
-    label: "Partial Out", key: "partial_out",
-    color: "text-[hsl(var(--partial))]",
-    iconBg: "bg-[hsl(var(--badge-partial-bg))]",
-    icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>,
+    label: "Pending Approval",
+    key: "pending_approval",
+    color: "text-[hsl(var(--warning))]",
+    iconBg: "bg-[hsl(var(--warning))]",
+    icon: <Clock className="h-5 w-5 text-white" />,
   },
   {
-    label: "Fully Out", key: "fully_out",
-    color: "text-muted-foreground",
-    iconBg: "bg-muted",
-    icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>,
-  },
-  {
-    label: "Bus Transport", key: "bus",
+    label: "Visit Denied",
+    key: "visit_denied",
     color: "text-destructive",
-    iconBg: "bg-destructive/10",
-    icon: <Bus className="h-6 w-6" />,
+    iconBg: "bg-destructive",
+    icon: <Ban className="h-5 w-5 text-white" />,
+  },
+  {
+    label: "Checked Out",
+    key: "fully_out",
+    color: "text-muted-foreground",
+    iconBg: "bg-muted-foreground",
+    icon: <ArrowRightFromLine className="h-5 w-5 text-white" />,
+  },
+  {
+    label: "No Show",
+    key: "no_show",
+    color: "text-muted-foreground",
+    iconBg: "bg-muted-foreground",
+    icon: <CalendarX className="h-5 w-5 text-white" />,
+  },
+  {
+    label: "Visit Cancelled",
+    key: "cancelled",
+    color: "text-destructive",
+    iconBg: "bg-destructive",
+    icon: <XCircle className="h-5 w-5 text-white" />,
   },
 ];
 
@@ -410,13 +399,14 @@ export default function GroupVisitManagement() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [showQr, setShowQr] = useState(false);
 
-  const statCounts = {
-    pending_approval: MOCK_GROUPS.filter((g) => g.status === "pending_approval").length,
-    approved: MOCK_GROUPS.filter((g) => g.status === "approved").length,
+  const statCounts: Record<string, number> = {
     checked_in: MOCK_GROUPS.filter((g) => g.status === "checked_in").length,
-    partial_out: MOCK_GROUPS.filter((g) => g.status === "partial_out").length,
+    pending_approval: MOCK_GROUPS.filter((g) => g.status === "pending_approval").length,
+    visit_denied: 0,
     fully_out: MOCK_GROUPS.filter((g) => g.status === "fully_out").length,
-    bus: MOCK_GROUPS.filter((g) => g.transport === "bus").length,
+    no_show: 0,
+    cancelled: 0,
+    late_checkout: MOCK_GROUPS.filter((g) => g.status === "late_checkout").length,
   };
 
   const filtered = MOCK_GROUPS.filter((g) => {
@@ -454,10 +444,7 @@ export default function GroupVisitManagement() {
               </span>
             </p>
           </div>
-          <Button
-            onClick={() => setShowQr(true)}
-            className="gap-2.5 h-14 px-6 rounded-xl text-sm font-semibold"
-          >
+          <Button onClick={() => setShowQr(true)} className="gap-2.5 h-14 px-6 rounded-xl text-sm font-semibold">
             <QrCode className="h-5 w-5" />
             <div className="text-left">
               <p className="font-bold leading-tight">Scan QR</p>
@@ -466,29 +453,57 @@ export default function GroupVisitManagement() {
           </Button>
         </div>
 
-        {/* Stat Cards */}
-        <div className="mb-6 grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {STAT_CARDS.map((card) => {
-            const count = statCounts[card.key as keyof typeof statCounts];
-            return (
-              <button
-                key={card.key}
-                onClick={() => setStatusFilter(card.key === "bus" ? "all" : (statusFilter === card.key ? "all" : card.key))}
-                className={`rounded-xl border border-border bg-card p-4 shadow-sm text-left transition-all hover:shadow-md ${statusFilter === card.key ? "ring-2 ring-primary/40" : ""}`}
-              >
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground leading-snug">{card.label}</p>
-                <div className="mt-2 flex items-center justify-between">
-                  <p className={`text-3xl font-bold ${card.color}`}>{count}</p>
-                  <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${card.iconBg} ${card.color}`}>
-                    {card.icon}
+        {/* ── Stat Cards ─────────────────────────────────────────────────── */}
+        <div className="mb-6 grid grid-cols-4 gap-3">
+          {/* 6 regular cards in a 3×2 sub-grid occupying 3 columns */}
+          <div className="col-span-3 grid grid-cols-3 gap-3">
+            {STAT_CARDS.map((card) => {
+              const count = statCounts[card.key] ?? 0;
+              const isActive = statusFilter === card.key;
+              return (
+                <button
+                  key={card.key}
+                  onClick={() => setStatusFilter(isActive ? "all" : card.key)}
+                  className={`rounded-xl border border-border bg-card p-4 shadow-sm text-left transition-all hover:shadow-md ${isActive ? "ring-2 ring-primary/40" : ""}`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground leading-snug">
+                      {card.label}
+                    </p>
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${card.iconBg}`}>
+                      {card.icon}
+                    </div>
                   </div>
-                </div>
-              </button>
-            );
-          })}
+                  <p className={`mt-3 text-3xl font-bold ${card.color}`}>{count}</p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Late Checkout — featured tall card occupying 1 column */}
+          <button
+            onClick={() => setStatusFilter(statusFilter === "late_checkout" ? "all" : "late_checkout")}
+            className={`rounded-xl border-2 bg-card shadow-sm text-left transition-all hover:shadow-md flex flex-col p-5 ${
+              statusFilter === "late_checkout"
+                ? "border-destructive ring-2 ring-destructive/30"
+                : "border-destructive/40"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground leading-snug">
+                Late Checkout
+              </p>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-destructive">
+                <AlertTriangle className="h-5 w-5 text-white" />
+              </div>
+            </div>
+            <p className="mt-auto text-8xl font-black text-destructive leading-none pt-6">
+              {statCounts.late_checkout}
+            </p>
+          </button>
         </div>
 
-        {/* Group List Table */}
+        {/* ── Group List Table ────────────────────────────────────────────── */}
         <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
           {/* Toolbar */}
           <div className="flex items-center justify-between border-b border-border px-5 py-3 gap-3 flex-wrap">
@@ -519,6 +534,7 @@ export default function GroupVisitManagement() {
                 <option value="checked_in">Checked In</option>
                 <option value="partial_out">Partial Out</option>
                 <option value="fully_out">Fully Out</option>
+                <option value="late_checkout">Late Checkout</option>
               </select>
               <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs">
                 <Download className="h-3.5 w-3.5" /> Export CSV
@@ -555,7 +571,10 @@ export default function GroupVisitManagement() {
               ) : (
                 filtered.map((g) => (
                   <>
-                    <tr key={g.id} className="border-b border-border hover:bg-muted/20 transition-colors">
+                    <tr
+                      key={g.id}
+                      className={`border-b border-border hover:bg-muted/20 transition-colors ${g.status === "late_checkout" ? "bg-destructive/5" : ""}`}
+                    >
                       {/* Expand */}
                       <td className="px-4 py-4">
                         <button onClick={() => toggleExpand(g.id)} className="text-muted-foreground hover:text-foreground">
@@ -565,8 +584,15 @@ export default function GroupVisitManagement() {
 
                       {/* Group / PIC */}
                       <td className="px-4 py-4">
-                        <p className="font-semibold text-foreground text-sm">{g.groupName}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">PIC: {g.picName}</p>
+                        <div className="flex items-center gap-2">
+                          {g.status === "late_checkout" && (
+                            <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />
+                          )}
+                          <div>
+                            <p className="font-semibold text-foreground text-sm">{g.groupName}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">PIC: {g.picName}</p>
+                          </div>
+                        </div>
                       </td>
 
                       {/* Size */}
@@ -668,6 +694,13 @@ export default function GroupVisitManagement() {
 // ─── Action button per status ─────────────────────────────────────────────────
 
 function ActionButton({ group }: { group: GroupRow }) {
+  if (group.status === "late_checkout") return (
+    <Link to={`/group-visits/${group.id}`}>
+      <Button size="sm" className="h-7 text-xs px-3 bg-destructive hover:bg-destructive/90 text-white">
+        Checkout Now
+      </Button>
+    </Link>
+  );
   if (group.status === "checked_in") return (
     <Link to={`/group-visits/${group.id}`}>
       <Button size="sm" className="h-7 text-xs px-3">Manage</Button>
