@@ -115,3 +115,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes scan-line {
+  0%   { top: 8px;  opacity: 1; }
+  50%  { top: calc(100% - 8px); opacity: 1; }
+  100% { top: 8px;  opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
