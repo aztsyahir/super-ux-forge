@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 
 interface QRScannerInputProps {
   onScan: (value: string) => void;
-  disabled?: boolean;
 }
 
 type Mode = "camera" | "manual";
