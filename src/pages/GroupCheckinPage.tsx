@@ -212,7 +212,7 @@ export default function GroupCheckinPage() {
                   </p>
                 </div>
               ) : (
-                <QRScannerInput onScan={handleScan} disabled={scanState === "loading"} />
+                <QRScannerInput onScan={handleScan} disabled={false} />
               )}
 
               {/* Error banner */}
