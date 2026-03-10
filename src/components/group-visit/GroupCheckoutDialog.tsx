@@ -371,16 +371,16 @@ export function GroupCheckoutDialog({
             </div>
           )}
 
-          {/* ── PIC ONLY: Justification textarea ── */}
+          {/* ── PIC ONLY: Departure Reason textarea ── */}
           {mode === "pic_only" && (
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">
-                Justification <span className="text-destructive">*</span>
+                Departure Reason <span className="text-destructive">*</span>
               </label>
               <Textarea
                 value={justification}
                 onChange={(e) => setJustification(e.target.value)}
-                placeholder="Enter justification for PIC leaving before the rest of the group."
+                placeholder="Enter reason why PIC is leaving before the group."
                 className="min-h-[90px]"
               />
               {justification.length > 0 && justification.trim().length < 10 && (

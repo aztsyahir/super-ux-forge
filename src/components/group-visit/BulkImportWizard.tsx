@@ -10,10 +10,16 @@ interface MemberRow {
   phone: string;
 }
 
+export interface BulkImportResult {
+  members: MemberRow[];
+  isBusTransport: boolean;
+  busPlateNumbers: string[];
+}
+
 interface BulkImportWizardProps {
   picName: string;
   onClose: () => void;
-  onComplete: () => void;
+  onComplete: (result: BulkImportResult) => void;
 }
 
 const DEMO_MEMBERS: MemberRow[] = [
@@ -393,7 +399,11 @@ export function BulkImportWizard({ picName, onClose, onComplete }: BulkImportWiz
 
               <div className="mt-6 flex justify-between">
                 <Button variant="outline" onClick={onClose}>Cancel</Button>
-                <Button onClick={onComplete}>Confirm Group Registration</Button>
+                <Button onClick={() => onComplete({
+                  members,
+                  isBusTransport: transport === "bus",
+                  busPlateNumbers: transport === "bus" ? busPlates.filter(Boolean) : [],
+                })}>Confirm Group Registration</Button>
               </div>
             </div>
           )}
