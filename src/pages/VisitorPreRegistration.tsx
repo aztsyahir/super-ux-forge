@@ -185,25 +185,67 @@ export default function VisitorPreRegistration() {
             </div>
           </div>
 
-          {/* Register as Group Visit */}
-          <div className="rounded-lg border border-border bg-muted/30 p-4">
-            <label className="flex cursor-pointer items-start gap-3">
-              <input
-                type="checkbox"
-                checked={groupVisit}
-                onChange={(e) => setGroupVisit(e.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-primary"
-              />
-              <div>
-                <p className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  Register as Group Visit
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Check this if you are registering multiple visitors under the same purpose.
-                </p>
+          {/* Is this a Group Visit? */}
+          <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-primary" />
+              <p className="text-sm font-medium text-foreground">Is this a Group Visit?</p>
+            </div>
+            <p className="text-xs text-muted-foreground -mt-1">
+              Select Yes if you are registering multiple visitors (5 or more) under the same visit purpose.
+            </p>
+            <div className="flex gap-6">
+              {(["no", "yes"] as const).map((val) => (
+                <label key={val} className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="radio"
+                    name="isGroupVisit"
+                    value={val}
+                    checked={isGroupVisit === val}
+                    onChange={() => {
+                      setIsGroupVisit(val);
+                      if (val === "no") setGroupImportResult(null);
+                    }}
+                    className="accent-primary h-4 w-4"
+                  />
+                  <span className="text-sm font-medium text-foreground capitalize">{val}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* Upload Group Members button — shown only when Yes */}
+            {isGroupVisit === "yes" && (
+              <div className="pt-1">
+                {groupImportResult ? (
+                  <div className="flex items-center justify-between rounded-lg border border-[hsl(var(--success-border))] bg-[hsl(var(--success-bg))] px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-[hsl(var(--success))]" />
+                      <p className="text-sm font-medium text-[hsl(var(--success))]">
+                        {groupImportResult.members.length} members imported
+                        {groupImportResult.isBusTransport && ` · Bus: ${groupImportResult.busPlateNumbers.join(", ")}`}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowWizard(true)}
+                      className="text-xs text-primary underline hover:no-underline"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="gap-2 w-full"
+                    onClick={() => setShowWizard(true)}
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload Group Members
+                  </Button>
+                )}
               </div>
-            </label>
+            )}
           </div>
 
           {/* PDPA */}
@@ -226,12 +268,18 @@ export default function VisitorPreRegistration() {
           {/* Submit */}
           <Button
             className="w-full"
-            disabled={!pdpaAgreed}
+            disabled={!pdpaAgreed || (isGroupVisit === "yes" && !groupImportResult)}
             onClick={() => {
-              if (groupVisit) setShowWizard(true);
+              // In real app: submit PIC visit + group_visit_details + group_visit_members
+              alert(isGroupVisit === "yes"
+                ? `Group visit submitted with ${groupImportResult?.members.length} members!`
+                : "Visit request submitted successfully!"
+              );
             }}
           >
-            {groupVisit ? "Continue to Group Registration →" : "Submit Visit Request"}
+            {isGroupVisit === "yes" && !groupImportResult
+              ? "Upload Group Members to Continue"
+              : "Submit Visit Request"}
           </Button>
         </div>
       </div>
@@ -241,9 +289,9 @@ export default function VisitorPreRegistration() {
         <BulkImportWizard
           picName="MUHAMMAD AIZAT SYAHIR MOHD KHAIRI"
           onClose={() => setShowWizard(false)}
-          onComplete={() => {
+          onComplete={(result) => {
+            setGroupImportResult(result);
             setShowWizard(false);
-            alert("Group registration submitted successfully!");
           }}
         />
       )}
