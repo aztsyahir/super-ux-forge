@@ -10,10 +10,16 @@ interface MemberRow {
   phone: string;
 }
 
+export interface BulkImportResult {
+  members: MemberRow[];
+  isBusTransport: boolean;
+  busPlateNumbers: string[];
+}
+
 interface BulkImportWizardProps {
   picName: string;
   onClose: () => void;
-  onComplete: () => void;
+  onComplete: (result: BulkImportResult) => void;
 }
 
 const DEMO_MEMBERS: MemberRow[] = [
