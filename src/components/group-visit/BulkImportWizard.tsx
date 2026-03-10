@@ -399,7 +399,11 @@ export function BulkImportWizard({ picName, onClose, onComplete }: BulkImportWiz
 
               <div className="mt-6 flex justify-between">
                 <Button variant="outline" onClick={onClose}>Cancel</Button>
-                <Button onClick={onComplete}>Confirm Group Registration</Button>
+                <Button onClick={() => onComplete({
+                  members,
+                  isBusTransport: transport === "bus",
+                  busPlateNumbers: transport === "bus" ? busPlates.filter(Boolean) : [],
+                })}>Confirm Group Registration</Button>
               </div>
             </div>
           )}
