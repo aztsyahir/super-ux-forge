@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { CheckCircle, ArrowLeft, Users } from "lucide-react";
+import { CheckCircle, ArrowLeft, Users, Upload, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { BulkImportWizard } from "@/components/group-visit/BulkImportWizard";
+import { BulkImportWizard, BulkImportResult } from "@/components/group-visit/BulkImportWizard";
 
 export default function VisitorPreRegistration() {
   const [params] = useSearchParams();
@@ -14,7 +13,8 @@ export default function VisitorPreRegistration() {
 
   const [visitPurpose, setVisitPurpose] = useState("");
   const [hostEmail, setHostEmail] = useState("");
-  const [groupVisit, setGroupVisit] = useState(false);
+  const [isGroupVisit, setIsGroupVisit] = useState<"no" | "yes">("no");
+  const [groupImportResult, setGroupImportResult] = useState<BulkImportResult | null>(null);
   const [pdpaAgreed, setPdpaAgreed] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
 
