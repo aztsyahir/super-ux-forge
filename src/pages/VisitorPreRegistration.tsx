@@ -194,7 +194,7 @@ export default function VisitorPreRegistration() {
             <p className="text-xs text-muted-foreground -mt-1">
               Select Yes if you are registering multiple visitors (5 or more) under the same visit purpose.
             </p>
-            <div className="flex gap-6">
+            <div className="flex flex-col gap-2">
               {(["no", "yes"] as const).map((val) => (
                 <label key={val} className="flex cursor-pointer items-center gap-2">
                   <input
